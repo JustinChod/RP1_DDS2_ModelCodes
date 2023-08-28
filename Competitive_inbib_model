@@ -1,0 +1,187 @@
+# PK model for competitive inhibition crosstalk between the oxidative stress response and inflammatory stress response pathways using Sulforaphane
+#######################################################################
+#Development of PK using MCsim model for Sulforaphane
+#date: 23/06/23
+
+
+#-----------------------------------------------------------------------------------
+
+States =  {
+  Amedia,
+  TNF,
+  TNFR ,
+  Ikk ,
+  pIkk ,
+  ppIkk ,
+  iIkk ,
+  NfkIkb ,
+  NfkpIkb ,
+  pNfkIkb ,
+  pNfkpIkb ,
+  pNfk ,
+  Nfk ,
+  pIkb ,
+  Ikb ,
+  mIkb ,
+  nIkb ,
+  pnNfk ,
+  #nNfk ,
+  nNfkIkb ,
+  RnaA20_1 ,
+  RnaA20 ,
+  A20,
+  intracellular,
+  Keap1,
+  Keap1_modified,
+  Nrf2,
+  Srxn1  
+};       #amount of NFT in urine
+
+Outputs = {};	
+
+Inputs = {AddingTNF}; 	
+
+
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# partition coefficient parameter of NFT in Rabbits
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Dosing = 0;
+build_A20 = 0.0006;
+degrad_A20 = 0.0116;
+deact_ppIkk = 0.1660;
+trigger_iIkk = 0.0041;
+form_complex = 2.8390;
+act_Ikk_by_TNF = 0.0714;
+act_pIkk = 0.0648;
+uptake = 1.0;
+deact_TNFR = 0.0010;
+act_Ikb_by_Ikk = 0.3980;
+act_Nfk_by_Ikk = 0.6438;
+ext_nNfkIkb = 1000.0;
+Vnuc = 1.0;
+act_Nfk_by_Ikk_complex = 0.2816;
+split_NfkpIkb = 0.0811;
+act_Ikb_complex = 1.3897;
+split_NfkIkb = 1.0;
+int_Nfk = 0.01;
+eta_int_pNfk = 17.9585;
+degrad_Ikb = 0.6308;
+prod_Ikb = 1.0;
+int_Ikb = 0.1226;
+prod_mIkb_by_nNfk = 0.0047;
+degrad_mIkb = 0.0313;
+form_complex_nuc = 1000.0;
+deact_pnNfk = 1000.0;
+build_RnaA20 = 1.0;
+shuttle_RnaA20 = 0.0311;
+degrad_RnaA20 = 0.0089;
+KmA20 = 0.061687;
+Ki_Nrf2 = 627.905;
+Ki_Nfk = 0.69974;
+time_constant1 = 0.226276309162;
+
+kd = 8e-04; #0.048/60 
+k1_2 = 0.00185;#0.111/60
+k2_1 = 0.1137;#6.819/60
+ke = 0.00565;#0.339/60
+buildNrf2Base= 0.0116;
+buildKeap1Base= 0.01012;
+kros=1;
+Kmax_deg= 401581;
+Km_Nrf2_deg= 5.66E+05;
+k_keap1_unmodification = 0.29189;
+k_keap1_modification = 5.32427;
+
+buildSrxn1Base = 0.002/60;
+degradNrf2 = 0.0011;
+degKeap1 = 0.001979;
+degradSrxn1 = 0.015/60;
+hill = 1;
+Km =  0.4545;
+Vmax_buildSrxn1 = 0.0626;
+nNfk = 0.0001;
+Dosing = 1;
+
+
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Compile parameters to be computed  in initialized
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+Initialize {
+  Amedia = Dosing;
+  TNF = 0;
+  TNFR = 0.0;
+  Ikk = 1.0;
+  pIkk = 0.0;
+  ppIkk = 0.0;
+  iIkk = 0.0;
+  NfkIkb = 1.0;
+  NfkpIkb = 0.0;
+  pNfkIkb = 0.0;
+  pNfkpIkb = 0.0;
+  pNfk = 0.0;
+  Nfk = 0.0;
+  pIkb = 0.0;
+  Ikb = 0.0;
+  mIkb = 0.0;
+  nIkb = 0.0;
+  pnNfk = 0.0;
+  #nNfk = 0.0;
+  nNfkIkb = 0.0;
+  RnaA20_1 = 0.0;
+  RnaA20 = 0.0;
+  A20 = 0.0;
+  intracellular = 0;
+  Nrf2 = 0; #0.03737348;
+  # Keap1 = (-0.03737348 + 0.841 - (0.137 * 0.03737348))* (566000 + 0.03737348) / 27200000;
+  # Keap1_modified = (0.01661597888 - 6.77000e-01 + (1.81700e+00 * 0.01661597888)) / 2.08660e+01;
+  Keap1 = 0; #buildKeap1Base / degKeap1;
+  Keap1_modified = 0;
+  
+}
+
+Dynamics {
+  
+  dt(Amedia) =   - kd*Amedia - k1_2*Amedia + k2_1*intracellular;
+  dt(TNF) = -time_constant1 * TNF;
+  dt(TNFR) = (uptake * TNF) - (deact_TNFR * TNFR);
+  dt(Ikk) = -(act_Ikk_by_TNF * TNFR * Ikk) + (trigger_iIkk * iIkk);
+  dt(pIkk) = (act_Ikk_by_TNF * TNFR * Ikk) - (act_pIkk * pIkk);
+  dt(ppIkk) = (act_pIkk * pIkk) - (deact_ppIkk * ppIkk);
+  dt(iIkk) = (deact_ppIkk * ppIkk) - (trigger_iIkk * iIkk);
+  dt(NfkIkb) = -(act_Ikb_by_Ikk * pIkk * NfkIkb) - (act_Nfk_by_Ikk * pIkk * NfkIkb) + (form_complex * Nfk * Ikb) + (ext_nNfkIkb * nNfkIkb) * (Vnuc/1);
+  dt(NfkpIkb) = (act_Ikb_by_Ikk * pIkk * NfkIkb) - (act_Nfk_by_Ikk_complex * pIkk * NfkpIkb) - (split_NfkpIkb * NfkpIkb);
+  dt(pNfkIkb) = -(act_Ikb_complex * pNfkIkb) - (act_Ikb_by_Ikk * pIkk * pNfkIkb) + (act_Nfk_by_Ikk * pIkk * NfkIkb);
+  dt(pNfkpIkb) = (act_Ikb_complex * pNfkIkb) + (act_Ikb_by_Ikk * pIkk * pNfkIkb) + (act_Nfk_by_Ikk_complex * pIkk * NfkpIkb) - (split_NfkIkb * pNfkpIkb);
+  dt(pNfk) = (split_NfkIkb * pNfkpIkb) - (int_Nfk * eta_int_pNfk * pNfk);
+  dt(Nfk) = (split_NfkpIkb * NfkpIkb) - (form_complex * Nfk * Ikb) - (int_Nfk * Nfk);
+  dt(pIkb) = (split_NfkpIkb * NfkpIkb) + (split_NfkIkb * pNfkpIkb) - (degrad_Ikb * pIkb);
+  dt(Ikb) = -(form_complex * Nfk * Ikb) + (prod_Ikb * mIkb) - (int_Ikb * Ikb);
+  dt(mIkb) = (prod_mIkb_by_nNfk * nNfk) - (degrad_mIkb * mIkb);
+  dt(nIkb) = (int_Ikb * Ikb * (1/Vnuc)) - (form_complex_nuc * nNfk * nIkb);
+  dt(pnNfk) = (int_Nfk * eta_int_pNfk * pNfk * (1/Vnuc)) - (deact_pnNfk * pnNfk);
+  #dt(nNfk) = (int_Nfk * Nfk * (1/Vnuc)) + (deact_pnNfk * pnNfk) - (form_complex_nuc * nNfk * nIkb);
+  dt(nNfkIkb) = (form_complex_nuc * nNfk * nIkb) - (ext_nNfkIkb * nNfkIkb);
+  dt(RnaA20_1) = (build_RnaA20 * nNfk)/(KmA20*(1+Nrf2/Ki_Nrf2)) - (shuttle_RnaA20 * RnaA20_1);
+  dt(RnaA20) = (shuttle_RnaA20 * RnaA20_1) - (degrad_RnaA20 * RnaA20);
+  dt(A20) = (build_A20 * RnaA20) - (degrad_A20 * A20);
+  Keap_total = Keap1 + Keap1_modified;
+  
+  Chemical_induced_modif =  k_keap1_modification*Amedia*Keap1 - k_keap1_unmodification*Keap1_modified;
+  #Nrf2_induced_deg = (Vmax_K1*(pow(Nrf2,hillK1)))/(pow(Km_K1,hillK1) + pow(Nrf2,hillK1));
+  Keap1_induced_deg = (Kmax_deg*Keap1*(Nrf2))/((Km_Nrf2_deg) + (Nrf2));
+  dt(Amedia) =   - kd*Amedia - k1_2*Amedia + k2_1*intracellular;
+  dt(intracellular) = - k2_1*intracellular +k1_2*Amedia - ke*intracellular;
+  dt(Keap1) = buildKeap1Base -Chemical_induced_modif - degKeap1* Keap1;
+  dt(Keap1_modified) = Chemical_induced_modif - degKeap1* Keap1_modified;
+  dt(Nrf2) = buildNrf2Base - Keap1_induced_deg - degradNrf2* Nrf2;
+  dt(Srxn1) = buildSrxn1Base + (Vmax_buildSrxn1 * (pow(Nrf2,hill)))/((pow(Km,hill)*(1 + Nfk/Ki_Nfk)) + pow(Nrf2,hill)) - degradSrxn1 * Srxn1;
+  
+} 
+
+End.
