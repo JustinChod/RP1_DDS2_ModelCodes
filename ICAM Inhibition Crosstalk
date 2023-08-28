@@ -1,12 +1,8 @@
-# PBPK model  for RABBITS FOR NFT
+# PK model for translocation inhibition crosstalk between the oxidative stress response and inflammatory stress response pathways using Sulforaphane
 #######################################################################
-#Development of PBPK using MCsim model for Nitrofurantoin
-#date: 16/05/22
-#######################################################################
+#Development of PK using MCsim model for Sulforaphane
+#date: 23/06/23
 
-#%%%%%%%%%%specific notes for models%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#models for Rabbit Nitrofurantoin  
-#Model version 1: generic model with only GFR based elimination and liver based metabolism in rabbits. 
 
 #-----------------------------------------------------------------------------------
 
